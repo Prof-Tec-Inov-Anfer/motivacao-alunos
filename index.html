@@ -3,74 +3,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mensagem Motivacional</title>
+    <title>Mensagem Motivacional - Prof. André Fernando</title>
     <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             display: flex;
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            margin: 0;
             padding: 20px;
         }
+        
         .card {
             background: white;
-            border-radius: 20px;
-            padding: 40px;
-            max-width: 500px;
+            border-radius: 25px;
+            padding: 50px;
+            max-width: 600px;
             text-align: center;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideIn 0.5s ease-out;
         }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
         .emoji {
-            font-size: 60px;
+            font-size: 80px;
             margin-bottom: 20px;
+            animation: bounce 1s infinite;
         }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
         h1 {
             color: #2a5298;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            font-size: 2.5em;
         }
-        p {
-            font-size: 18px;
-            line-height: 1.6;
+        
+        .aluno-nome {
+            color: #667eea;
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 25px;
+        }
+        
+        .mensagem {
+            font-size: 1.3em;
+            line-height: 1.8;
             color: #333;
+            margin-bottom: 30px;
+            font-style: italic;
         }
-        .code {
+        
+        .info-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+        
+        .info-item {
+            margin: 10px 0;
+            font-size: 1.1em;
+        }
+        
+        .codigo-box {
             background: #f0f0f0;
-            padding: 10px;
+            padding: 15px;
             border-radius: 10px;
             margin-top: 20px;
             font-weight: bold;
+            font-size: 1.2em;
+            color: #2a5298;
+        }
+        
+        .footer {
+            margin-top: 30px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .error {
+            color: #e74c3c;
+            font-size: 1.2em;
         }
     </style>
 </head>
 <body>
     <div class="card">
-        <div class="emoji">🌟</div>
-        <h1>Parabéns!</h1>
-        <p id="mensagem">Você escaneou o QR Code! Continue focado nos seus estudos.</p>
-        <div class="code" id="codigo">Código: #0000</div>
+        <div class="emoji" id="emoji">🌟</div>
+        <h1 id="titulo">Carregando...</h1>
+        <div class="aluno-nome" id="aluno-nome"></div>
+        <div class="mensagem" id="mensagem"></div>
+        <div class="info-box" id="info-box" style="display: none;">
+            <div class="info-item">📚 <strong>Disciplina:</strong> Língua Portuguesa</div>
+            <div class="info-item">👨‍🏫 <strong>Professor:</strong> André Fernando</div>
+            <div class="info-item">🏫 <strong>Escola:</strong> E.E. Francisco Barreto Leme</div>
+        </div>
+        <div class="codigo-box" id="codigo-box"></div>
+        <div class="footer">
+            <p>Continue se dedicando aos estudos! 📖</p>
+        </div>
     </div>
     
     <script>
-        // Pegar código da URL
+        const alunosDatabase = {
+            "7482": { nome: "BRUNO RODRIGUES SILVA", turma: "1ª Série A", numero: 2, frase: "A leitura amplia horizontes de conhecimento." },
+            "5239": { nome: "CRISTIAN DOS SANTOS CORREA", turma: "1ª Série A", numero: 4, frase: "Seu esforço genuíno faz toda a diferença." },
+            "8156": { nome: "DAVI OLIVEIRA MEIRELES", turma: "1ª Série A", numero: 5, frase: "Você tem um potencial incrível para crescer." },
+            "3947": { nome: "FABIO LEONARDO FERNANDES VELIDO", turma: "1ª Série A", numero: 6, frase: "Cada desafio superado te torna mais forte." },
+            "6821": { nome: "IAN PEREIRA TAVARES", turma: "1ª Série A", numero: 7, frase: "Sua dedicação aos estudos é admirável." },
+            "2574": { nome: "JULIA ROBERTA DA SILVA", turma: "1ª Série A", numero: 9, frase: "Continue acreditando no seu potencial único." },
+            "9163": { nome: "LAIS DA SILVA CONCEICAO", turma: "1ª Série A", numero: 12, frase: "Você está construindo um futuro brilhante." },
+            "4738": { nome: "NICOLY DO NASCIMENTO RODRIGUES", turma: "1ª Série A", numero: 13, frase: "Sua persistência é a chave do sucesso." },
+            "5892": { nome: "PAOLA ROSARIA DE LIMA DOS SANTOS", turma: "1ª Série A", numero: 15, frase: "Cada página lida te aproxima dos objetivos." },
+            "7345": { nome: "PAULA EDUARDA FAVORETO FERREIRA", turma: "1ª Série A", numero: 16, frase: "Você é capaz de alcançar grandes conquistas." },
+            "2916": { nome: "STHEFANY CAMILLI NASCIMENTO GOMES SILVA", turma: "1ª Série A", numero: 18, frase: "Seu comprometimento faz a diferença sempre." },
+            "8427": { nome: "VICTOR GABRIEL DA SILVA CARQUIOLO", turma: "1ª Série A", numero: 19, frase: "Continue firme na busca pelo conhecimento." },
+            "6153": { nome: "MARIA LUISA DE JESUS THIMOTEO", turma: "1ª Série A", numero: 20, frase: "Você está evoluindo a cada novo desafio." },
+            "3784": { nome: "BIANCA GOMES GONCALVES", turma: "1ª Série A", numero: 21, frase: "Sua curiosidade é uma grande aliada sempre." },
+            "9521": { nome: "MURILO DUARTE ALVES CARO DE GODOY", turma: "1ª Série A", numero: 29, frase: "Você demonstra maturidade em seus estudos." },
+            "4269": { nome: "NIKOLY SANCHES CANARI", turma: "1ª Série A", numero: 34, frase: "Sua evolução ao longo do tempo impressiona." },
+            "7658": { nome: "GABRIEL HENRIQUE DE MELO ROCHA", turma: "1ª Série A", numero: 35, frase: "Continue investindo no seu desenvolvimento pessoal." },
+            "5134": { nome: "KAUA JOSE ALVES GOMES", turma: "1ª Série A", numero: 45, frase: "Você tem um olhar crítico admirável." },
+            "2847": { nome: "NICOLY EMANUELLE FLORIANO GODOI", turma: "1ª Série A", numero: 46, frase: "Sua determinação é inspiradora para todos." },
+            "6943": { nome: "KARLOS ALEXANDRE LEAO DE SOUSA", turma: "1ª Série B", numero: 1, frase: "Você já superou tantos desafios importantes." },
+            "8217": { nome: "BRUNO ARCELINA RIBEIRO", turma: "1ª Série B", numero: 2, frase: "Sua resiliência é uma qualidade excepcional." },
+            "3562": { nome: "CESAR HERMINIO ROMANO JUNIOR", turma: "1ª Série B", numero: 3, frase: "Continue enfrentando obstáculos com coragem sempre." },
+            "9185": { nome: "SOPHIA IOTTI NAVARRO", turma: "1ª Série B", numero: 6, frase: "Cada dificuldade vencida te prepara melhor." },
+            "4728": { nome: "EMILY NUNES DE QUEIROZ", turma: "1ª Série B", numero: 7, frase: "Você é mais forte do que imagina." },
+            "7391": { nome: "ERIC XAVIER DE JESUS", turma: "1ª Série B", numero: 8, frase: "Seus sonhos são válidos e alcançáveis." },
+            "2456": { nome: "JULIANE ROBERTA REIS DA SILVA", turma: "1ª Série B", numero: 9, frase: "O futuro pertence aos que acreditam." },
+            "8634": { nome: "ANA LUIZA COCIELLO PRINCEPE", turma: "1ª Série B", numero: 10, frase: "Você está construindo bases sólidas do sucesso." },
+            "5179": { nome: "MARY EDUARDA DA SILVA", turma: "1ª Série B", numero: 11, frase: "Suas escolhas de hoje moldam o amanhã." },
+            "3942": { nome: "VERONICA SOUZA BISPO", turma: "1ª Série B", numero: 12, frase: "A leitura abre portas para mundos infinitos." },
+            "6285": { nome: "VINICIUS ALEXANDRE ROSA CARDOSO", turma: "1ª Série B", numero: 13, frase: "Dominar a língua é dominar a expressão." },
+            "9517": { nome: "LUIZ FELIPE RODRIGUES SANTOS", turma: "1ª Série B", numero: 14, frase: "Cada texto interpretado amplia sua visão." },
+            "4863": { nome: "ANTONY RAFAEL JOAQUIM DOS SANTOS", turma: "1ª Série B", numero: 15, frase: "A palavra tem poder e você aprende." },
+            "7249": { nome: "THAILA DA COSTA SANTOS", turma: "1ª Série B", numero: 16, frase: "Ler é viajar sem sair do lugar." },
+            "2735": { nome: "JULIANA VICTÓRIA GOMES DA SILVA", turma: "1ª Série B", numero: 17, frase: "Você faz parte de uma turma incrível." },
+            "8491": { nome: "DILAN ESTEBAN PEDREROS CARDENA", turma: "1ª Série B", numero: 18, frase: "Sua presença enriquece nossa sala de aula." },
+            "5628": { nome: "LARISSA FERNANDES DE SOUZA", turma: "1ª Série B", numero: 19, frase: "Aprender é mais bonito quando compartilhado sempre." },
+            "3154": { nome: "JENIFFER ROSA FERREIRA DOS SANTOS", turma: "1ª Série B", numero: 22, frase: "Você inspira seus colegas com dedicação." },
+            "9376": { nome: "CAIQUE SOUZA DE OLIVEIRA", turma: "1ª Série B", numero: 23, frase: "Nossa turma é melhor porque você está." }
+        };
+        
         const params = new URLSearchParams(window.location.search);
-        const codigo = params.get('codigo') || '0000';
+        const codigo = params.get('codigo') || params.get('c') || '';
+        const aluno = alunosDatabase[codigo];
         
-        document.getElementById('codigo').textContent = `Código: #${codigo}`;
-        
-        // Mensagens motivacionais aleatórias
-        const mensagens = [
-            "Você está no caminho certo! Continue se dedicando aos estudos.",
-            "Cada esforço conta! Você é capaz de grandes conquistas.",
-            "O conhecimento é a chave para o seu futuro brilhante.",
-            "Parabéns pela dedicação! Seu empenho fará a diferença.",
-            "Continue firme! Você está construindo um futuro incrível."
-        ];
-        
-        const mensagemAleatoria = mensagens[Math.floor(Math.random() * mensagens.length)];
-        document.getElementById('mensagem').textContent = mensagemAleatoria;
+        if (aluno) {
+            document.getElementById('emoji').textContent = '🎉';
+            document.getElementById('titulo').textContent = 'Parabéns!';
+            document.getElementById('aluno-nome').textContent = aluno.nome;
+            document.getElementById('mensagem').textContent = `"${aluno.frase}"`;
+            document.getElementById('info-box').style.display = 'block';
+            document.getElementById('codigo-box').innerHTML = `<strong>Código:</strong> #${codigo}<br><strong>Turma:</strong> ${aluno.turma}<br><strong>Número:</strong> ${aluno.numero}`;
+        } else {
+            document.getElementById('emoji').textContent = '❓';
+            document.getElementById('titulo').textContent = 'Código Não Encontrado';
+            document.getElementById('aluno-nome').style.display = 'none';
+            document.getElementById('mensagem').innerHTML = '<span class="error">O código informado não está cadastrado no sistema.</span>';
+            document.getElementById('codigo-box').innerHTML = codigo ? `<strong>Código informado:</strong> #${codigo}` : '<strong>Nenhum código foi fornecido na URL</strong>';
+        }
     </script>
 </body>
 </html>
